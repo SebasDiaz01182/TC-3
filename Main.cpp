@@ -6,7 +6,7 @@
 #include <string>
 #include <sstream>
 #include <math.h>
-
+#include <cstdio>
 
 #include "ArbolBinario.hpp"
 using namespace std;
@@ -55,7 +55,7 @@ void Clientes(){
     		z++;
     	}
     	archivo.close();
-    	
+    	/*
     	int i,j,k;
     	int tam = largo;
     	for(i = 0; i < tam; i++){
@@ -71,11 +71,17 @@ void Clientes(){
 				}
 			}
 		}
+		*/
 		int indice = 0;
 		for(int x = 0;x<tam;x++){
 			Indice(lineas[x],indice);
 		}
- 
+		remove("Clientes.txt");
+ 		ofstream archivo;
+    	archivo.open("Clientes.txt", ios::app);
+    	for(x=0;x<tam;x++){
+    		archivo<<lineas[x]<<endl;
+		}
 	}
 }
 pNodoBinario CrearArbol(){
@@ -103,21 +109,37 @@ pNodoBinario CrearArbol(){
 	return raiz;
 }
 
-void ImprimirCache(){
+void CrearCache(int cacheInt[],string cacheStr[]){
 	ifstream archivo;
 	string texto;
-	pNodoBinario raiz = NULL;
-	archivo.open("Cache.txt",ios::in);
+	archivo.open("Clientes.txt",ios::in);
 	if (archivo.fail()){
-	    cout<<"La memoria no ha sido creada, primero debe de cargarla";
-	}else{
-		cout<<"\n\n Memoria cache" << endl;
+	    cout<<"No se pudo abrir el archivo";
+	    exit(1);
+	}
+	else{
+		int largo = 0;
 		while(!archivo.eof()){
-			getline(archivo,texto);
-			int posPC = texto.find(";");
-	        int cedula = atoi(texto.substr(0, posPC).c_str()); string nombre = texto.substr(posPC + 1, texto.length());
-	        cout<<"Cedula: "<<cedula<<" , Nombre: "<<nombre<<endl;
-		}archivo.close();
+			if(largo!=20){
+				getline(archivo,texto);
+				int posPC = texto.find(";");
+	        	int cedula = atoi(texto.substr(0, posPC).c_str()); string nombre = texto.substr(posPC + 1, texto.length());
+	        	cacheInt[largo]= cedula;
+				cacheStr[largo]= nombre;
+				largo++;
+			}
+			else{
+				break;
+			}
+			
+		}
+	}
+}
+
+void MostrarCache(int cacheInt[],string cacheStr[]){
+	cout<<"Memoria cache"<<endl<<endl;
+	for(int e = 0;e<20;e++){
+		cout<<"Cedula: "<<cacheInt[e]<<" Nombre: "<<cacheStr[e]<<endl;
 	}
 }
 
@@ -127,6 +149,8 @@ void EliminarCliente(){
 
 int main(){
 	int opcion;
+	int cacheInt[20];string cacheStr[20];
+	CrearCache(cacheInt,cacheStr);
 	pNodoBinario raiz;
 	do { 
 		system("cls");      // Para limpiar la pantalla 
@@ -151,7 +175,7 @@ int main(){
 				system("pause>nul"); 
 				break;  
 		    case 2:
-		    	ImprimirCache();
+		    	MostrarCache(cacheInt,cacheStr);
 		    	system("pause>nul"); 
 		        break;    
 			case 3:
