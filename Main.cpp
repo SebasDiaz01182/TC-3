@@ -176,8 +176,43 @@ bool BuscarEnCache(int cedula, int cacheInt[], string cacheStr[], string &nombre
 	}
 	return false;
 }
-void CambiarCache(int indice, string &nombre, int cacheInt[], string cacheStr[]){
-	
+void CambiarCache(int indice,int cedula, int cacheInt[], string cacheStr[]){
+	ifstream archivo , archivoAux;
+	string texto, textoAux;
+	archivo.open("ClientesRN.txt",ios::in);
+	archivoAux.open("ClientesRN.txt",ios::in);
+	if (archivo.fail()){
+	    cout<<"No se pudo abrir el archivo";
+	    exit(1);
+	}
+	else{
+		int x = 0 , indicador = 0, pos = 0;
+		string lineasAux[20];
+		while(!archivo.eof()){
+			getline(archivo,texto);
+			if(x>=indice){
+				lineasAux[pos] = texto;
+				pos++;
+				indicador++;
+			}
+			x++;
+		}
+		if(indicador<20){
+			while(indicador<20){//ACORDARSE EN DADO CASO DE PONER MENOR IGUAL
+				while(!archivoAux.eof()){
+					getline(archivoAux,textoAux);
+					lineasAux[indicador] = textoAux;
+					indicador++;
+				}
+			}
+		}
+		for(int w = 0;w<20;w++){
+			int posPC = lineasAux[w].find(";");
+        	int cedula = atoi(lineasAux[w].substr(0, posPC).c_str()); string nombre = lineasAux[w].substr(posPC + 1, texto.length());
+        	cacheInt[w]=cedula;
+        	cacheStr[w]=nombre;
+		}
+	}
 }
 
 void BuscarCliente(pNodoBinario &raiz , int cacheInt[], string cacheStr[]){
@@ -186,10 +221,15 @@ void BuscarCliente(pNodoBinario &raiz , int cacheInt[], string cacheStr[]){
 	if(ExisteCliente(raiz,cedula,indice)){
 		if(BuscarEnCache(cedula,cacheInt,cacheStr,nombre)){
 			cout<<"El cliente solicitado es "<< nombre<< " de cedula "<<cedula<<endl;	
-		}else{
-			//Renovar Cache
 		}
-	}else{
+		else{
+			CambiarCache(indice,cedula,cacheInt,cacheStr);
+			if(BuscarEnCache(cedula,cacheInt,cacheStr,nombre)){
+				cout<<"El cliente solicitado es "<< nombre<< " de cedula "<<cedula<<endl;	
+			}
+		}	
+	}
+	else{
 		cout<<"El usuario ingresado no existe"<<endl;
 	}
 }
