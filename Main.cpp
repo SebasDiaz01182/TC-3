@@ -7,7 +7,7 @@
 #include <sstream>
 #include <math.h>
 
-//hpp
+
 #include "ArbolBinario.hpp"
 using namespace std;
 
@@ -89,10 +89,8 @@ pNodoBinario CrearArbol(){
 	}else{
 		while(!archivo.eof()){
 			getline(archivo,texto);
-			cout<<"Texto: "<<texto<<endl;
 			int posPC = texto.find(";");
 	        int indice = atoi(texto.substr(0, posPC).c_str()); int cedula = atoi((texto.substr(posPC + 1, texto.length())).c_str());
-	        cout<<indice<<"-"<<cedula<<endl;
 	        if(raiz==NULL){
 	        	raiz = new NodoBinario(cedula,indice);
 			}
@@ -105,10 +103,76 @@ pNodoBinario CrearArbol(){
 	return raiz;
 }
 
+void ImprimirCache(){
+	ifstream archivo;
+	string texto;
+	pNodoBinario raiz = NULL;
+	archivo.open("Cache.txt",ios::in);
+	if (archivo.fail()){
+	    cout<<"La memoria no ha sido creada, primero debe de cargarla";
+	}else{
+		cout<<"\n\n Memoria cache" << endl;
+		while(!archivo.eof()){
+			getline(archivo,texto);
+			int posPC = texto.find(";");
+	        int cedula = atoi(texto.substr(0, posPC).c_str()); string nombre = texto.substr(posPC + 1, texto.length());
+	        cout<<"Cedula: "<<cedula<<" , Nombre: "<<nombre<<endl;
+		}archivo.close();
+	}
+}
+
+void EliminarCliente(){
+	int cedula; cout<<"Ingrese la cedula del usuario a elminar: "; cin>>cedula; cout<<endl;
+}
 
 int main(){
-	Clientes(); 
-	pNodoBinario raiz = CrearArbol();
-	
+	int opcion;
+	pNodoBinario raiz;
+	do { 
+		system("cls");      // Para limpiar la pantalla 
+		cout << "Tarea Corta #3" << endl; 
+		cout << "\nMenu" << endl<<endl; 
+		cout << "1. Cargar los archivos" << endl;
+		cout << "2. Memoria cache" << endl; 
+		cout << "3. Busqueda" << endl; 
+		cout << "4. Insertar Cliente" << endl; 
+		cout << "5. Eliminar " << endl; 
+		cout << "6. Purgar " << endl; 
+		cout << "7. Reindexar " << endl; 
+		cout << "8. Salir" << endl; 
+		cout << "\nIngrese una opcion: "; 
+		cin >> opcion; 
+		cout<<endl; 
+		switch (opcion) {  
+		    case 1:
+		    	Clientes(); 
+				raiz = CrearArbol();
+				cout<<"Los archivos se han cargado exitosamente"<<endl;
+				system("pause>nul"); 
+				break;  
+		    case 2:
+		    	ImprimirCache();
+		    	system("pause>nul"); 
+		        break;    
+			case 3:
+		        system("pause>nul"); 
+		        break;                 
+		 	case 4:
+		        system("pause>nul"); 
+		        break;    
+		    case 5:
+		    	EliminarCliente();
+		        system("pause>nul"); 
+		        break;  
+			case 6:
+		        system("pause>nul"); 
+		        break; 
+			case 7:
+		        system("pause>nul"); 
+		        break;        
+		}	
+	}
+	while (opcion!=8);
+		cout<<"Gracias por utilizar el programa"<<endl;			
    return 0;
 }
