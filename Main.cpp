@@ -143,7 +143,9 @@ void CrearCache(int cacheInt[],string cacheStr[]){
 void MostrarCache(int cacheInt[],string cacheStr[]){
 	cout<<"Memoria cache"<<endl<<endl;
 	for(int e = 0;e<20;e++){
-		cout<<"Cedula: "<<cacheInt[e]<<" Nombre: "<<cacheStr[e]<<endl;
+		if(!cacheInt[e]==0){
+			cout<<"Cedula: "<<cacheInt[e]<<" Nombre: "<<cacheStr[e]<<endl;	
+		}
 	}
 }
 
@@ -245,8 +247,105 @@ void BuscarCliente(pNodoBinario &raiz , int cacheInt[], string cacheStr[]){
 	}
 }
 
-void EliminarCliente(){
-	int cedula; cout<<"Ingrese la cedula del usuario a elminar: "; cin>>cedula; cout<<endl;
+pNodoBinario unirABB(pNodoBinario izq, pNodoBinario der){
+    if(izq==NULL) return der;
+    if(der==NULL) return izq;
+
+    pNodoBinario centro = unirABB(izq->Hder, der->Hizq);
+    izq->Hder = centro;
+    der->Hizq = izq;
+    return der;
+}
+
+void elimina(pNodoBinario &raiz, int x){
+     if(raiz==NULL) return;
+
+     if(x<raiz->valor)
+         elimina(raiz->Hizq, x);
+     else if(x>raiz->valor)
+         elimina(raiz->Hder, x);
+
+     else{
+         pNodoBinario p = raiz;
+         raiz = unirABB(raiz->Hizq, raiz->Hder);
+         delete p;
+     }
+}
+
+bool ExisteClienteAux(pNodoBinario &raiz, int cedula){
+	if(raiz==NULL){
+        return false;
+    }
+	else if (raiz->valor== cedula) {
+		return true; 
+    }
+	else if(cedula<raiz->valor){
+    	ExisteClienteAux(raiz->Hizq,cedula);
+	}
+	else{
+		ExisteClienteAux(raiz->Hder,cedula);
+	}
+}
+void eliminarCache(int cedula, int cacheInt[], string cacheStr[]){
+        for (int x = 0; x<20; x++){
+            if(cacheInt[x] == cedula){
+                 cacheInt[x] = 0 ;
+                 cacheStr[x] = "Cliente Borrado";
+            }
+       }
+}
+void EliminarCliente(pNodoBinario &raiz,int cacheInt[], string cacheStr[]){
+	int cedula; cout<<"Ingrese la cedula del usuario a eliminar: "; cin>>cedula; cout<<endl;
+	if(ExisteClienteAux(raiz,cedula)){
+		elimina(raiz,cedula);
+		eliminarCache(cedula,cacheInt,cacheStr);
+		
+		ifstream archivo,archAux;
+		string texto,textoAux;
+		archivo.open("ClientesRN.txt",ios::in);
+		int largo = 0,t;
+		while(!archivo.eof()){
+			largo++;
+		}archivo.close();
+		string lineasNuevas[largo];
+		archAux.open("ClientesRN.txt",ios::in);
+		while(!archAux.eof()){
+			getline(archAux,textoAux);
+			lineasNuevas[t] = textoAux ;
+			t++;
+		}archAux.close();
+		remove("ClientesRN.txt");
+		/*
+		ofstream archivoNuevo;
+		archivoNuevo.open("ClientesRN.txt",ios::out);
+		int y;
+		for(int e = 0;e<largo-1;e++){
+			//cortamos el texto
+			int posPC = lineasNuevas[e].find(";");
+        	int cedulaAux = atoi(lineasNuevas[e].substr(0, posPC).c_str()); string nombre = lineasNuevas[e].substr(posPC + 1, lineasNuevas[e].length());
+			if(cedula==cedulaAux){
+				archivoNuevo<<lineasNuevas[e]<<"1"<<endl;
+			}
+			else{
+				archivoNuevo<<lineasNuevas[e]<<endl;
+			}
+			y=e;
+		}archivoNuevo.close();
+		y++;
+		int posPC = lineasNuevas[y].find(";");
+    	int cedulaAux = atoi(lineasNuevas[y].substr(0, posPC).c_str()); string nombre = lineasNuevas[y].substr(posPC + 1, lineasNuevas[y].length());
+		if(cedula==cedulaAux){
+			archivoNuevo<<lineasNuevas[y]<<"1";
+		}
+		else{
+			archivoNuevo<<lineasNuevas[y];
+		}
+		*/
+		cout<<"Cliente eliminado con exito."<<endl;
+	}
+	else{
+		cout<<"El cliente que usted desea eliminar no existe."<<endl;
+	}
 	
 }
 
@@ -290,7 +389,7 @@ int main(){
 		        system("pause>nul"); 
 		        break;                 
 		 	case 4:
-		 		EliminarCliente();
+		 		EliminarCliente(raiz,cacheInt,cacheStr);
 		        system("pause>nul"); 
 		        break;    
 		    case 5:
