@@ -186,29 +186,44 @@ void CambiarCache(int indice,int cedula, int cacheInt[], string cacheStr[]){
 	    exit(1);
 	}
 	else{
-		int x = 0 , indicador = 0, pos = 0;
+		int x = 1 , indicador = 0, pos = 0;
 		string lineasAux[20];
 		while(!archivo.eof()){
+			cout<<"Indicador: "<<indicador<<endl;
 			getline(archivo,texto);
+			if(pos==20){
+				break;
+			}
 			if(x>=indice){
 				lineasAux[pos] = texto;
+				cout<<"Lineas Aux : "<<lineasAux[pos]<<endl;
 				pos++;
 				indicador++;
 			}
 			x++;
 		}
+		archivo.close();
+		cout<<"Indicador fuera del while: "<<indicador<<endl;
 		if(indicador<20){
-			while(indicador<20){//ACORDARSE EN DADO CASO DE PONER MENOR IGUAL
-				while(!archivoAux.eof()){
+			int temp = 20-indicador-1,lineasExtra[temp];
+			while(!archivoAux.eof()){
+				if(temp==0){
+					break;
+				}
+				else{
 					getline(archivoAux,textoAux);
-					lineasAux[indicador] = textoAux;
+					lineasAux[indicador+1] = textoAux;
 					indicador++;
+					temp--;
 				}
 			}
+			archivoAux.close();
 		}
+		
 		for(int w = 0;w<20;w++){
+			cout<<"For"<<endl;
 			int posPC = lineasAux[w].find(";");
-        	int cedula = atoi(lineasAux[w].substr(0, posPC).c_str()); string nombre = lineasAux[w].substr(posPC + 1, texto.length());
+        	int cedula = atoi(lineasAux[w].substr(0, posPC).c_str()); string nombre = lineasAux[w].substr(posPC + 1, lineasAux[w].length());
         	cacheInt[w]=cedula;
         	cacheStr[w]=nombre;
 		}
