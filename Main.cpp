@@ -80,10 +80,12 @@ void Clientes(){
 		}
  		ofstream archivo;
     	archivo.open("ClientesRN.txt", ios::app);
-    	for(int x = 0;x<tam;x++){
+    	int y;
+    	for(int x = 0;x<tam-1;x++){
     		archivo<<lineas[x]<<";"<<lineasNom[x]<<endl;
-    		
+    		y=x;
 		}
+		archivo<<lineas[y+1]<<";"<<lineasNom[y+1];
 	}
 }
 pNodoBinario CrearArbol(){
@@ -163,10 +165,6 @@ bool ExisteCliente(pNodoBinario &raiz, int cedula, int &indice){
 }
 
 
-void EliminarCliente(){
-	int cedula; cout<<"Ingrese la cedula del usuario a elminar: "; cin>>cedula; cout<<endl;
-}
-
 bool BuscarEnCache(int cedula, int cacheInt[], string cacheStr[], string &nombre){
 	for(int x=0; x<20; x++){
 		if(cacheInt[x] == cedula){
@@ -189,30 +187,29 @@ void CambiarCache(int indice,int cedula, int cacheInt[], string cacheStr[]){
 		int x = 1 , indicador = 0, pos = 0;
 		string lineasAux[20];
 		while(!archivo.eof()){
-			cout<<"Indicador: "<<indicador<<endl;
 			getline(archivo,texto);
 			if(pos==20){
 				break;
 			}
 			if(x>=indice){
 				lineasAux[pos] = texto;
-				cout<<"Lineas Aux : "<<lineasAux[pos]<<endl;
+				cout<<"Lineas: "<<lineasAux[pos]<<endl;
 				pos++;
 				indicador++;
 			}
 			x++;
 		}
 		archivo.close();
-		cout<<"Indicador fuera del while: "<<indicador<<endl;
 		if(indicador<20){
-			int temp = 20-indicador-1,lineasExtra[temp];
+			int temp = 20-indicador,lineasExtra[temp];
 			while(!archivoAux.eof()){
 				if(temp==0){
 					break;
 				}
 				else{
 					getline(archivoAux,textoAux);
-					lineasAux[indicador+1] = textoAux;
+					lineasAux[indicador] = textoAux;
+					cout<<"Lineas: "<<lineasAux[indicador]<<endl;
 					indicador++;
 					temp--;
 				}
@@ -221,7 +218,6 @@ void CambiarCache(int indice,int cedula, int cacheInt[], string cacheStr[]){
 		}
 		
 		for(int w = 0;w<20;w++){
-			cout<<"For"<<endl;
 			int posPC = lineasAux[w].find(";");
         	int cedula = atoi(lineasAux[w].substr(0, posPC).c_str()); string nombre = lineasAux[w].substr(posPC + 1, lineasAux[w].length());
         	cacheInt[w]=cedula;
@@ -249,6 +245,17 @@ void BuscarCliente(pNodoBinario &raiz , int cacheInt[], string cacheStr[]){
 	}
 }
 
+void EliminarCliente(){
+	int cedula; cout<<"Ingrese la cedula del usuario a elminar: "; cin>>cedula; cout<<endl;
+	
+}
+
+void InsertarCliente(){
+	int cedula; cout<<"Ingrese la cedula del usuario a insertar: "; cin>>cedula; cout<<endl;
+	string nombre; cout<< "Ingrese el nombre del usuario a insertar: "; cin>>nombre; cout<<endl;
+	
+}
+
 int main(){
 	int opcion;
 	int cacheInt[20];string cacheStr[20];
@@ -272,21 +279,21 @@ int main(){
 		cout<<endl; 
 		switch (opcion) {  
 		    case 1:
+		    	MostrarCache(cacheInt,cacheStr);
 				system("pause>nul"); 
 				break;
 		    case 2:
-		    	MostrarCache(cacheInt,cacheStr);
+		    	BuscarCliente(raiz , cacheInt, cacheStr);
 		    	system("pause>nul"); 
 		        break;    
 			case 3:
-				BuscarCliente(raiz , cacheInt, cacheStr);
 		        system("pause>nul"); 
 		        break;                 
 		 	case 4:
+		 		EliminarCliente();
 		        system("pause>nul"); 
 		        break;    
 		    case 5:
-		    	EliminarCliente();
 		        system("pause>nul"); 
 		        break;  
 			case 6:
