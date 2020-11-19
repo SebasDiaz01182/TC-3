@@ -11,15 +11,22 @@
 #include "ArbolBinario.hpp"
 using namespace std;
 
-void Indice(int cedula, int &indice){
+void Indice(int cedula, int &indice, bool bandera){
     ofstream archivo;
     archivo.open("Indices.txt", ios::app);
     if(archivo.fail()){
         cout<<"No se pudo crear el archivo"<<endl;
         exit(1);
     }
-    indice++;
-    archivo<<indice<<";"<<cedula<<endl;
+    if(bandera){
+    	indice++;
+    	archivo<<indice<<";"<<cedula<<endl;
+	}
+	else{
+		indice++;
+    	archivo<<indice<<";"<<cedula;
+	}
+    
 }
 
 void Clientes(){
@@ -75,8 +82,12 @@ void Clientes(){
 		//cout<<"Cedula: "<<lineas[i]<<" Nombre: "<<lineasNom[i]<<endl;
 		}
 		int indice = 0;
+		bool bandera = true;
 		for(int x = 0;x<tam;x++){
-			Indice(lineas[x],indice);
+			if(x==tam-1){
+				bandera = false;
+			}
+			Indice(lineas[x],indice,bandera);
 		}
  		ofstream archivo;
     	archivo.open("ClientesRN.txt", ios::app);
@@ -441,6 +452,114 @@ void InsertarCliente(pNodoBinario &raiz, int cacheInt[], string cacheStr[]){
 	
 }
 
+
+void Reindexar(){
+	ifstream archivo;
+	string texto;
+	ofstream archivoSalida;
+	//Se inicializa la lista de indices
+	remove("Indices.txt");
+	archivoSalida.open("Indices.txt", ios::app);
+	if(archivoSalida.fail()){
+		cout<<"No se pudo crear el archivo"<<endl;
+		exit(1);
+	}
+	//Se abre la lista de clientes
+	archivo.open("ClientesRN.txt",ios::in);
+	if (archivo.fail()){
+	    cout<<"No se pudo abrir el archivo";
+	    exit(1);
+	}else{
+		int largo = 0;
+		while(!archivo.eof()){
+			getline(archivo,texto);
+			largo++;
+		}
+		archivo.close();
+		archivo.open("ClientesRN.txt",ios::in);
+		int lineas[largo];
+		string lineasNom[largo];
+		int z = 0;
+    	while(!archivo.eof()){
+    		getline(archivo,texto);
+			int posPC = texto.find(";");
+	        int cedula = atoi(texto.substr(0, posPC).c_str()); string nombre = texto.substr(posPC + 1, texto.length());
+			lineas[z] = cedula;
+			lineasNom[z] = nombre;
+			z++;
+    	}
+    	archivo.close();
+    	int i,j,k;
+    	int tam = largo-1;
+    	for(i = 0; i < tam; i++){
+			for(j = i+1; j < tam; j++){
+				if(lineas[i] == lineas[j]){
+					k = j;
+					while(k < tam){
+						lineas[k] = lineas[k+1];
+						lineasNom[k]= lineasNom[k+1];
+						++k;
+					}
+					--tam;
+					--j;
+				}
+			}
+		//cout<<"Cedula: "<<lineas[i]<<" Nombre: "<<lineasNom[i]<<endl;
+		}
+		int indice = 0;bool bandera = true;
+		for(int x = 0;x<tam;x++){
+			if(x==tam-1){
+				bandera = false;
+			}
+			Indice(lineas[x],indice,bandera);
+		}
+	}
+}
+
+
+void Purgar(){
+	ifstream archivo;
+	//Con este c	iclo deterimanos el indice del cliente
+	string texto;
+	archivo.open("ClientesRN.txt",ios::in);
+	int largo = 0, t =0;
+	while(!archivo.eof()){
+		getline(archivo,texto);
+		if(texto[texto.length()-1]!='1'){
+			largo++;
+		}
+		else{
+			continue;
+		}
+	}archivo.close();
+	
+	string arrayLineas[largo];
+	
+	archivo.open("ClientesRN.txt",ios::in);
+	while(!archivo.eof()){
+		getline(archivo,texto);
+		if(texto[texto.length()-1]!='1'){
+			arrayLineas[t] = texto;
+			t++;
+		}
+		else{
+			continue;
+		}
+	}archivo.close();
+	remove("ClientesRN.txt");
+	ofstream archivoNuevo;
+	archivoNuevo.open("ClientesRN.txt",ios::app);
+	int y;
+	for(int x = 0;x<largo-1;x++){
+		archivoNuevo<<arrayLineas[x]<<endl;
+		y=x;
+	}
+	archivoNuevo<<arrayLineas[y+1];
+	archivoNuevo.close();
+	cout<<"Purga realizada con exito."<<endl;
+	
+}
+
 int main(){
 	int opcion;
 	int cacheInt[20];string cacheStr[20];
@@ -480,9 +599,14 @@ int main(){
 		        system("pause>nul"); 
 		        break;    
 		    case 5:
+		    	Purgar();
 		        system("pause>nul"); 
 		        break;  
 			case 6:
+				Reindexar();
+				raiz = CrearArbol();
+				PreordenR(raiz);
+				cout<<endl;
 		        system("pause>nul"); 
 		        break;       
 		}	
