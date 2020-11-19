@@ -149,7 +149,6 @@ void MostrarCache(int cacheInt[],string cacheStr[]){
 	}
 }
 
-
 bool ExisteCliente(pNodoBinario &raiz, int cedula, int &indice){
 	if(raiz==NULL){
         return false;
@@ -218,7 +217,40 @@ void CambiarCache(int indice,int cedula, int cacheInt[], string cacheStr[]){
 			}
 			archivoAux.close();
 		}
-		
+		for(int w = 0;w<20;w++){
+			int posPC = lineasAux[w].find(";");
+        	int cedula = atoi(lineasAux[w].substr(0, posPC).c_str()); string nombre = lineasAux[w].substr(posPC + 1, lineasAux[w].length());
+        	cacheInt[w]=cedula;
+        	cacheStr[w]=nombre;
+		}
+	}
+}
+
+void CambiarCacheInsert(int indice, int cacheInt[], string cacheStr[]){
+	ifstream archivo ;
+	string texto;
+	archivo.open("ClientesRN.txt",ios::in);
+	if (archivo.fail()){
+	    cout<<"No se pudo abrir el archivo";
+	    exit(1);
+	}
+	else{
+		int x = 1 , indicador = 0, pos = 19;
+		string lineasAux[20];
+		while(!archivo.eof()){
+			getline(archivo,texto);
+			if(x>=indice){
+				lineasAux[pos] = texto;
+				cout<<"Lineas: "<<lineasAux[pos]<<endl;
+				pos--;
+				indicador++;
+			}
+			if(pos==0){
+				break;
+			}
+			x++;
+		}
+		archivo.close();
 		for(int w = 0;w<20;w++){
 			int posPC = lineasAux[w].find(";");
         	int cedula = atoi(lineasAux[w].substr(0, posPC).c_str()); string nombre = lineasAux[w].substr(posPC + 1, lineasAux[w].length());
@@ -303,8 +335,9 @@ void EliminarCliente(pNodoBinario &raiz,int cacheInt[], string cacheStr[]){
 		ifstream archivo,archAux;
 		string texto,textoAux;
 		archivo.open("ClientesRN.txt",ios::in);
-		int largo = 0,t;
+		int largo = 0,t = 0;
 		while(!archivo.eof()){
+			getline(archivo,texto);
 			largo++;
 		}archivo.close();
 		string lineasNuevas[largo];
@@ -315,7 +348,7 @@ void EliminarCliente(pNodoBinario &raiz,int cacheInt[], string cacheStr[]){
 			t++;
 		}archAux.close();
 		remove("ClientesRN.txt");
-		/*
+		// Se reescribe el archivo con la bandera de borrado
 		ofstream archivoNuevo;
 		archivoNuevo.open("ClientesRN.txt",ios::out);
 		int y;
@@ -340,7 +373,6 @@ void EliminarCliente(pNodoBinario &raiz,int cacheInt[], string cacheStr[]){
 		else{
 			archivoNuevo<<lineasNuevas[y];
 		}
-		*/
 		cout<<"Cliente eliminado con exito."<<endl;
 	}
 	else{
@@ -349,9 +381,63 @@ void EliminarCliente(pNodoBinario &raiz,int cacheInt[], string cacheStr[]){
 	
 }
 
-void InsertarCliente(){
+void InsertarCliente(pNodoBinario &raiz, int cacheInt[], string cacheStr[]){
 	int cedula; cout<<"Ingrese la cedula del usuario a insertar: "; cin>>cedula; cout<<endl;
 	string nombre; cout<< "Ingrese el nombre del usuario a insertar: "; cin>>nombre; cout<<endl;
+	if(!ExisteClienteAux(raiz,cedula)){
+		ifstream archivo;
+		//Con este iclo deterimanos el indice del cliente
+		string texto;
+		archivo.open("ClientesRN.txt",ios::in);
+		int largo = 0,t = 0;
+		while(!archivo.eof()){
+			getline(archivo,texto);
+			largo++;
+		}archivo.close();
+		//Escribo el nuevo cliente
+		ofstream archivoNuevo;
+		archivoNuevo.open("ClientesRN.txt",ios::app);
+		archivoNuevo<<endl<<cedula<<";"<<nombre;
+		archivoNuevo.close();
+		//Insertar en el arbol
+		InsertarCedula(raiz,cedula,largo+1);
+		//Cache
+		int indice = (largo+1)-19;
+		ifstream archivoC ;
+		string textoC;
+		archivoC.open("ClientesRN.txt",ios::in);
+		if (archivoC.fail()){
+		    cout<<"No se pudo abrir el archivo";
+		    exit(1);
+		}
+		else{
+			int x = 0 , pos = 19;
+			string lineasAux[20];
+			indice--;
+			while(!archivoC.eof()){
+				getline(archivoC,textoC);
+				if(pos==0){
+					lineasAux[pos] = textoC;
+					break;
+				}
+				if(x>=indice){
+					lineasAux[pos] = textoC;
+					pos--;
+				}
+				x++;
+			}
+			archivoC.close();
+			for(int w = 0;w<20;w++){
+				int posPC = lineasAux[w].find(";");
+	        	int cedula = atoi(lineasAux[w].substr(0, posPC).c_str()); string nombre = lineasAux[w].substr(posPC + 1, lineasAux[w].length());
+	        	cacheInt[w]=cedula;
+	        	cacheStr[w]=nombre;
+			}
+		}
+		cout<<"Cliente ingresado con exito"<<endl;
+	}else{
+		cout<<"La cedula ingresada ya existe"<<endl;
+	}
 	
 }
 
@@ -386,6 +472,7 @@ int main(){
 		    	system("pause>nul"); 
 		        break;    
 			case 3:
+				InsertarCliente(raiz, cacheInt, cacheStr);
 		        system("pause>nul"); 
 		        break;                 
 		 	case 4:
