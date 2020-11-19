@@ -204,10 +204,11 @@ void CambiarCache(int indice,int cedula, int cacheInt[], string cacheStr[]){
 				break;
 			}
 			if(x>=indice){
-				lineasAux[pos] = texto;
-				cout<<"Lineas: "<<lineasAux[pos]<<endl;
-				pos++;
-				indicador++;
+				if(texto[texto.length()-1]!='1'){
+					lineasAux[pos] = texto;
+					pos++;
+					indicador++;
+				}
 			}
 			x++;
 		}
@@ -215,15 +216,16 @@ void CambiarCache(int indice,int cedula, int cacheInt[], string cacheStr[]){
 		if(indicador<20){
 			int temp = 20-indicador,lineasExtra[temp];
 			while(!archivoAux.eof()){
+				getline(archivoAux,textoAux);
 				if(temp==0){
 					break;
 				}
 				else{
-					getline(archivoAux,textoAux);
-					lineasAux[indicador] = textoAux;
-					cout<<"Lineas: "<<lineasAux[indicador]<<endl;
-					indicador++;
-					temp--;
+					if(textoAux[textoAux.length()-1]!='1'){
+						lineasAux[indicador] = textoAux;
+						indicador++;
+						temp--;
+					}
 				}
 			}
 			archivoAux.close();
@@ -251,10 +253,13 @@ void CambiarCacheInsert(int indice, int cacheInt[], string cacheStr[]){
 		while(!archivo.eof()){
 			getline(archivo,texto);
 			if(x>=indice){
-				lineasAux[pos] = texto;
-				cout<<"Lineas: "<<lineasAux[pos]<<endl;
-				pos--;
-				indicador++;
+				cout<<"Texto: "<<texto<<endl;
+				if(texto[texto.length()-1]!='1'){
+					cout<<"No borrado"<<endl;
+					lineasAux[pos] = texto;
+					pos--;
+					indicador++;
+				}
 			}
 			if(pos==0){
 				break;
@@ -374,7 +379,7 @@ void EliminarCliente(pNodoBinario &raiz,int cacheInt[], string cacheStr[]){
 				archivoNuevo<<lineasNuevas[e]<<endl;
 			}
 			y=e;
-		}archivoNuevo.close();
+		}
 		y++;
 		int posPC = lineasNuevas[y].find(";");
     	int cedulaAux = atoi(lineasNuevas[y].substr(0, posPC).c_str()); string nombre = lineasNuevas[y].substr(posPC + 1, lineasNuevas[y].length());
@@ -385,6 +390,7 @@ void EliminarCliente(pNodoBinario &raiz,int cacheInt[], string cacheStr[]){
 			archivoNuevo<<lineasNuevas[y];
 		}
 		cout<<"Cliente eliminado con exito."<<endl;
+		archivoNuevo.close();
 	}
 	else{
 		cout<<"El cliente que usted desea eliminar no existe."<<endl;
@@ -414,17 +420,32 @@ void InsertarCliente(pNodoBinario &raiz, int cacheInt[], string cacheStr[]){
 		InsertarCedula(raiz,cedula,largo+1);
 		//Cache
 		int indice = (largo+1)-19;
-		ifstream archivoC ;
-		string textoC;
+		ifstream archivoC, archivoC2 ;
+		string textoC, textoC2;
 		archivoC.open("ClientesRN.txt",ios::in);
+		archivoC2.open("ClientesRN.txt",ios::in);
 		if (archivoC.fail()){
 		    cout<<"No se pudo abrir el archivo";
 		    exit(1);
 		}
 		else{
-			int x = 0 , pos = 19;
+			int x = 0 , pos = 19, x2= 0;
 			string lineasAux[20];
 			indice--;
+			int indice2 = indice;
+			while(!archivoC2.eof()){
+				getline(archivoC2,textoC2);
+				if(pos==0){
+					break;
+				}
+				if(x2>=indice2){
+					if(textoC2[textoC2.length()-1]=='1'){
+						indice--;
+					}
+				}
+				x2++;
+			}
+			archivoC2.close();
 			while(!archivoC.eof()){
 				getline(archivoC,textoC);
 				if(pos==0){
@@ -432,8 +453,10 @@ void InsertarCliente(pNodoBinario &raiz, int cacheInt[], string cacheStr[]){
 					break;
 				}
 				if(x>=indice){
-					lineasAux[pos] = textoC;
-					pos--;
+					if(textoC[textoC.length()-1]!='1'){
+						lineasAux[pos] = textoC;
+						pos--;
+					}
 				}
 				x++;
 			}
@@ -513,7 +536,7 @@ void Reindexar(){
 			}
 			Indice(lineas[x],indice,bandera);
 		}
-	}
+	}cout<<"Se ha reindexado con exito"<<endl;
 }
 
 
@@ -583,30 +606,49 @@ int main(){
 		cout<<endl; 
 		switch (opcion) {  
 		    case 1:
+		    	cout<<endl;
 		    	MostrarCache(cacheInt,cacheStr);
 				system("pause>nul"); 
 				break;
 		    case 2:
 		    	BuscarCliente(raiz , cacheInt, cacheStr);
-		    	system("pause>nul"); 
+		    	cout<<endl;
+				MostrarCache(cacheInt,cacheStr);
+				cout<<endl<<"Preorden del arbol: "<<endl;
+				PreordenR(raiz);
+		    	system("pause>nul");
 		        break;    
 			case 3:
 				InsertarCliente(raiz, cacheInt, cacheStr);
+				cout<<endl;
+				MostrarCache(cacheInt,cacheStr);
+				cout<<endl<<"Preorden del arbol: "<<endl;
+				PreordenR(raiz);
 		        system("pause>nul"); 
 		        break;                 
 		 	case 4:
 		 		EliminarCliente(raiz,cacheInt,cacheStr);
+		 		cout<<endl;
+				MostrarCache(cacheInt,cacheStr);
+				cout<<endl<<"Preorden del arbol: "<<endl;
+				PreordenR(raiz);
 		        system("pause>nul"); 
 		        break;    
 		    case 5:
 		    	Purgar();
+		    	cout<<endl;
+				MostrarCache(cacheInt,cacheStr);
+				cout<<endl<<"Preorden del arbol: "<<endl;
+				PreordenR(raiz);
 		        system("pause>nul"); 
 		        break;  
 			case 6:
 				Reindexar();
 				raiz = CrearArbol();
-				PreordenR(raiz);
 				cout<<endl;
+				MostrarCache(cacheInt,cacheStr);
+				cout<<endl<<"Preorden del arbol: "<<endl;
+				PreordenR(raiz);
 		        system("pause>nul"); 
 		        break;       
 		}	

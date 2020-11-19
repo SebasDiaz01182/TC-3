@@ -41,7 +41,7 @@ void PreordenR(NodoBinario *R){
         return;
     }
 	else{
-		cout<<R->valor<<" - ";
+		cout<<R->valor<<" -> ";
         PreordenR(R->Hizq);
         PreordenR(R->Hder);
         
